@@ -1,17 +1,16 @@
 require 'socket'
 
-ip = ARGV[0]
-nickname = ARGV[1]
+nickname = ARGV[0]
 
-if ip.nil? || nickname.nil?
-  puts 'Please provide an IP adress and name: ruby client.rb 10.0.0.1 nickname'
+if nickname.nil?
+  puts 'Please provide a name: ruby client.rb nickname'
   exit 1
 end
 
-puts "Connecting to #{ip} on port 2000"
+puts "Connecting to chat server on port 2000"
 
 # Connect to the server
-client = TCPSocket.open(ip, 2000)
+client = TCPSocket.open('0.tcp.ngrok.io', 10940)
 
 # Write the nickname to the server first
 client.puts nickname
