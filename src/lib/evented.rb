@@ -1,11 +1,11 @@
-def get_messages_to_send(client, messages)
+def get_messages_to_send(last_write, nickname, messages)
   [].tap do |out|
     # Get the messages we haven't written yet for this client and send them
     messages.reverse_each do |message|
       # Once we're behind the last write time everything has already been sent
-      break if message[:time] < client[:last_write]
+      break if message[:time] < last_write
       # Don't send if we typed this ourselves
-      next if message[:nickname] == client[:nickname]
+      next if message[:nickname] == nickname
 
       out << message
     end

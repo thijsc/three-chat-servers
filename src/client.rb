@@ -10,7 +10,7 @@ end
 puts "Connecting to chat server on port 2000"
 
 # Connect to the server
-client = TCPSocket.open('0.tcp.ngrok.io', 11481)
+client = TCPSocket.open('localhost', 2000)
 
 # Write the nickname to the server first
 client.puts nickname

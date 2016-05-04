@@ -5,8 +5,46 @@ puts "Starting server on port 2000"
 
 server = TCPServer.open(2000)
 
-clients = {}
-messages = []
+CLIENTS = {}
+MESSAGES = []
+
+def create_client(nickname, socket)
+  Fiber.new do
+    # Store some info about this connection
+    last_write = Time.now
+
+    loop do
+      state = Fiber.yield
+
+      if state == :readable
+        # Read a message from the socket
+        incoming = read_line_from(socket)
+
+        # If the message is nil the client disconnected
+        if incoming.nil?
+          puts "Disconnected nickname"
+          # Remove the client from storage
+          CLIENTS.delete(socket)
+          # Exit fiber by breaking the loop
+          break
+        end
+
+        # All good, add it to the list to write
+        MESSAGES.push(
+          :time => Time.now,
+          :nickname => nickname,
+          :text => incoming
+        )
+      elsif state == :writable
+        get_messages_to_send(last_write, nickname, MESSAGES).each do |message|
+          socket.puts "#{message[:nickname]}: #{message[:text]}"
+        end
+
+        last_write = Time.now
+      end
+    end
+  end
+end
 
 # Our event loop
 loop do
@@ -15,63 +53,38 @@ loop do
   begin
     socket = server.accept_nonblock
     nickname = socket.gets.chomp
-    client = {
-      :last_write => Time.now,
-      :nickname => nickname,
-      :ip => socket.addr.last
-    }
-    clients[socket] = client
-    puts "Accepted connection from #{client[:nickname]} on #{client[:ip]}"
+    CLIENTS[socket] = create_client(nickname, socket)
+    puts "Accepted connection from #{nickname} on #{socket.addr.last}"
   rescue IO::WaitReadable, Errno::EINTR
     # No new incoming connections at the moment
   end
 
   # Step 2: Ask the OS to inform us when a connection is ready, wait for 10ms for this to happen
   readable, writable = IO.select(
-    clients.keys,
-    clients.keys,
-    clients.keys,
+    CLIENTS.keys,
+    CLIENTS.keys,
+    CLIENTS.keys,
     0.01
   )
 
-  # Step 3: See if any of our connections are readable and write messages to them
+  # Step 3: See if any of our connections are readable and trigger the client
   if readable
     readable.each do |ready_socket|
-      # Read a message from the socket
-      incoming = read_line_from(ready_socket)
-
       # Get the client from storage
-      client = clients[ready_socket]
+      client = CLIENTS[ready_socket]
 
-      # If the message is nil the client disconnected
-      if incoming.nil?
-        puts "Disconnected #{client[:nickname]} on #{client[:ip]}"
-        # Remove the client from storage
-        clients.delete(ready_socket)
-        next
-      end
-
-      # All good, add it to the list to write
-      messages.push(
-        :time => Time.now,
-        :nickname => client[:nickname],
-        :text => incoming
-      )
+      client.resume(:readable)
     end
   end
 
-  # Step 4: See if any of our connections are writable and write messages to them
+  # Step 4: See if any of our connections are writable and trigger the client
   if writable
     writable.each do |ready_socket|
       # Get the client from storage
-      client = clients[ready_socket]
+      client = CLIENTS[ready_socket]
       next unless client
 
-      get_messages_to_send(client, messages).each do |message|
-        ready_socket.puts "#{message[:nickname]}: #{message[:text]}"
-      end
-
-      client[:last_write] = Time.now
+      client.resume(:writable)
     end
   end
 
