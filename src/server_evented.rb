@@ -35,6 +35,7 @@ def create_client(nickname, socket)
           :text => incoming
         )
       elsif state == :writable
+        # Write messages to the socket
         get_messages_to_send(last_write, nickname, $messages).each do |message|
           socket.puts "#{message[:nickname]}: #{message[:text]}"
         end
@@ -59,7 +60,7 @@ loop do
   end
 
   # Step 2: Ask the OS to inform us when a connection is ready, wait for 10ms for this to happen
-  # A "real" event loop system would register interest instead of calling this every tick.
+  # A "real" event loop system would register interest instead of calling this every tick
   readable, writable = IO.select(
     $clients.keys,
     $clients.keys,
