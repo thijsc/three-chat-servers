@@ -5,12 +5,11 @@ puts "Starting server on port 2000"
 
 server = TCPServer.open(2000)
 
-CLIENTS = {}
-MESSAGES = []
+$clients = {}
+$messages = []
 
 def create_client(nickname, socket)
   Fiber.new do
-    # Store some info about this connection
     last_write = Time.now
 
     loop do
@@ -22,21 +21,21 @@ def create_client(nickname, socket)
 
         # If the message is nil the client disconnected
         if incoming.nil?
-          puts "Disconnected nickname"
+          puts "Disconnected #{nickname}"
           # Remove the client from storage
-          CLIENTS.delete(socket)
+          $clients.delete(socket)
           # Exit fiber by breaking the loop
           break
         end
 
         # All good, add it to the list to write
-        MESSAGES.push(
+        $messages.push(
           :time => Time.now,
           :nickname => nickname,
           :text => incoming
         )
       elsif state == :writable
-        get_messages_to_send(last_write, nickname, MESSAGES).each do |message|
+        get_messages_to_send(last_write, nickname, $messages).each do |message|
           socket.puts "#{message[:nickname]}: #{message[:text]}"
         end
 
@@ -53,17 +52,18 @@ loop do
   begin
     socket = server.accept_nonblock
     nickname = socket.gets.chomp
-    CLIENTS[socket] = create_client(nickname, socket)
-    puts "Accepted connection from #{nickname} on #{socket.addr.last}"
+    $clients[socket] = create_client(nickname, socket)
+    puts "Accepted connection from #{nickname}"
   rescue IO::WaitReadable, Errno::EINTR
     # No new incoming connections at the moment
   end
 
   # Step 2: Ask the OS to inform us when a connection is ready, wait for 10ms for this to happen
+  # A "real" event loop system would register interest instead of calling this every tick.
   readable, writable = IO.select(
-    CLIENTS.keys,
-    CLIENTS.keys,
-    CLIENTS.keys,
+    $clients.keys,
+    $clients.keys,
+    $clients.keys,
     0.01
   )
 
@@ -71,7 +71,7 @@ loop do
   if readable
     readable.each do |ready_socket|
       # Get the client from storage
-      client = CLIENTS[ready_socket]
+      client = $clients[ready_socket]
 
       client.resume(:readable)
     end
@@ -81,7 +81,7 @@ loop do
   if writable
     writable.each do |ready_socket|
       # Get the client from storage
-      client = CLIENTS[ready_socket]
+      client = $clients[ready_socket]
       next unless client
 
       client.resume(:writable)

@@ -1,6 +1,6 @@
 # Read a line and strip any newlines
-def read_line_from(client)
-  if read = client.gets
+def read_line_from(socket)
+  if read = socket.gets
     read.chomp
   end
 end

@@ -1,16 +1,19 @@
 require 'socket'
 
-nickname = ARGV[0]
+host = ARGV[0]
+nickname = ARGV[1]
 
-if nickname.nil?
-  puts 'Please provide a name: ruby client.rb nickname'
+if host.nil? || nickname.nil?
+  puts 'Please provide a host and name: ruby client.rb host nickname'
   exit 1
 end
 
-puts "Connecting to chat server on port 2000"
+puts "Connecting to #{host} on port 2000..."
 
 # Connect to the server
 client = TCPSocket.open('localhost', 2000)
+
+puts 'Connected to chat server, type away!'
 
 # Write the nickname to the server first
 client.puts nickname
