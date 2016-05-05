@@ -1,7 +1,7 @@
 require 'socket'
 require './lib/evented'
 
-puts "Starting server on port 2000"
+puts "Starting server on port 2000 with pid #{Process.pid}"
 
 server = TCPServer.open(2000)
 
