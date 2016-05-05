@@ -11,7 +11,7 @@ end
 puts "Connecting to #{host} on port 2000..."
 
 # Connect to the server
-client = TCPSocket.open('localhost', 2000)
+client = TCPSocket.open(host, 2000)
 
 puts 'Connected to chat server, type away!'
 
