@@ -38,6 +38,5 @@ loop do
 
       puts "#{Process.pid}: Disconnected #{nickname}"
     end
-
   end
 end

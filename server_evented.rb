@@ -50,7 +50,6 @@ end
 
 # Our event loop
 loop do
-
   # Step 1: See if we have any new incoming connections
   begin
     socket = server.accept_nonblock

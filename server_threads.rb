@@ -11,7 +11,6 @@ mutex = Mutex.new
 messages = []
 
 loop do
-
   # Accept incoming connections and spawn a thread for each one
   Thread.new(server.accept) do |socket|
     nickname = read_line_from(socket)
@@ -46,5 +45,4 @@ loop do
 
     puts "Disconnected #{nickname}"
   end
-
 end
