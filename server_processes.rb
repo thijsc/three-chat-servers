@@ -1,6 +1,8 @@
 require 'socket'
 require './lib/processes'
 
+Thread.abort_on_exception = true
+
 puts "Starting server on port 2000 with pid #{Process.pid}"
 
 server = TCPServer.open(2000)

@@ -1,5 +1,7 @@
 require 'socket'
 
+Thread.abort_on_exception = true
+
 host = ARGV[0]
 nickname = ARGV[1]
 
