@@ -7,10 +7,10 @@ puts "Starting server on port 2000 with pid #{Process.pid}"
 
 server = TCPServer.open(2000)
 
-$clients = {}
+$client_handlers = {}
 $messages = []
 
-def create_client(nickname, socket)
+def create_client_handler(nickname, socket)
   Fiber.new do
     last_write = Time.now
 
@@ -25,7 +25,7 @@ def create_client(nickname, socket)
         if incoming.nil?
           puts "Disconnected #{nickname}"
           # Remove the client from storage
-          $clients.delete(socket)
+          $client_handlers.delete(socket)
           # Exit fiber by breaking the loop
           break
         end
@@ -54,7 +54,7 @@ loop do
   begin
     socket = server.accept_nonblock
     nickname = socket.gets.chomp
-    $clients[socket] = create_client(nickname, socket)
+    $client_handlers[socket] = create_client_handler(nickname, socket)
     puts "Accepted connection from #{nickname}"
   rescue IO::WaitReadable, Errno::EINTR
     # No new incoming connections at the moment
@@ -63,9 +63,9 @@ loop do
   # Step 2: Ask the OS to inform us when a connection is ready, wait for 10ms for this to happen
   # A "real" event loop system would register interest instead of calling this every tick
   readable, writable = IO.select(
-    $clients.keys,
-    $clients.keys,
-    $clients.keys,
+    $client_handlers.keys,
+    $client_handlers.keys,
+    $client_handlers.keys,
     0.01
   )
 
@@ -73,7 +73,7 @@ loop do
   if readable
     readable.each do |ready_socket|
       # Get the client from storage
-      client = $clients[ready_socket]
+      client = $client_handlers[ready_socket]
 
       client.resume(:readable)
     end
@@ -83,7 +83,7 @@ loop do
   if writable
     writable.each do |ready_socket|
       # Get the client from storage
-      client = $clients[ready_socket]
+      client = $client_handlers[ready_socket]
       next unless client
 
       client.resume(:writable)
