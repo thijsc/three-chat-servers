@@ -1,11 +1,11 @@
 require 'socket'
-require './lib/processes'
+require_relative 'lib/processes'
 
 Thread.abort_on_exception = true
 
 puts "Starting server on port 2000 with pid #{Process.pid}"
 
-server = TCPServer.open(2000)
+server = TCPServer.new(2000)
 
 client_writers = []
 master_reader, master_writer = IO.pipe
@@ -15,8 +15,7 @@ write_incoming_messages_to_child_processes(master_reader, client_writers)
 # Run a loop that waits for incoming connections to the server and
 # forks a child process for every connection.
 loop do
-  while socket = server.accept
-
+  while (socket = server.accept)
     # Create a client reader and writer so that the master process can
     # write messages back to us
     client_reader, client_writer = IO.pipe
@@ -32,7 +31,7 @@ loop do
       write_incoming_messages_to_client(nickname, client_reader, socket)
 
       # Read incoming messages from the client.
-      while incoming = read_line_from(socket)
+      while (incoming = read_line_from(socket))
         master_writer.puts "#{nickname}: #{incoming}"
       end
 

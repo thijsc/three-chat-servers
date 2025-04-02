@@ -1,12 +1,13 @@
 require 'socket'
-require './lib/evented'
+require_relative 'lib/evented'
 
 Thread.abort_on_exception = true
 
 puts "Starting server on port 2000 with pid #{Process.pid}"
 
-server = TCPServer.open(2000)
+server = TCPServer.new(2000)
 
+# Store the client handlers an messages in global variables
 $client_handlers = {}
 $messages = []
 
@@ -32,9 +33,9 @@ def create_client_handler(nickname, socket)
 
         # All good, add it to the list to write
         $messages.push(
-          :time => Time.now,
-          :nickname => nickname,
-          :text => incoming
+          time: Time.now,
+          nickname: nickname,
+          text: incoming
         )
       elsif state == :writable
         # Write messages to the socket
@@ -60,6 +61,9 @@ loop do
     # No new incoming connections at the moment
   end
 
+  # Skip the rest of the loop if we don't have any clients yet
+  next if $client_handlers.empty?
+
   # Step 2: Ask the OS to inform us when a connection is ready, wait for 10ms for this to happen
   # A "real" event loop system would register interest instead of calling this every tick
   readable, writable = IO.select(
@@ -74,8 +78,7 @@ loop do
     readable.each do |ready_socket|
       # Get the client from storage
       client = $client_handlers[ready_socket]
-
-      client.resume(:readable)
+      client&.resume(:readable)
     end
   end
 
@@ -84,9 +87,7 @@ loop do
     writable.each do |ready_socket|
       # Get the client from storage
       client = $client_handlers[ready_socket]
-      next unless client
-
-      client.resume(:writable)
+      client&.resume(:writable)
     end
   end
 

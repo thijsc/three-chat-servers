@@ -1,8 +1,6 @@
 # Read a line and strip any newlines
 def read_line_from(socket)
-  if read = socket.gets
-    read.chomp
-  end
+  socket.gets&.chomp
 end
 
 def get_messages_to_send(nickname, messages, sent_until)

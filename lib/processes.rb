@@ -2,7 +2,7 @@
 # every incoming message to all forked processes
 def write_incoming_messages_to_child_processes(master_reader, client_writers)
   Thread.new do
-    while incoming = master_reader.gets
+    master_reader.each_line do |incoming|
       client_writers.each do |writer|
         writer.puts incoming
       end
@@ -14,9 +14,8 @@ end
 # writes these back to the client
 def write_incoming_messages_to_client(nickname, client_reader, socket)
   Thread.new do
-    while incoming = client_reader.gets
+    client_reader.each_line do |incoming|
       unless incoming.start_with?(nickname)
-        puts incoming
         socket.puts incoming
       end
     end
@@ -25,7 +24,5 @@ end
 
 # Read a line and strip any newlines
 def read_line_from(socket)
-  if read = socket.gets
-    read.chomp
-  end
+  socket.gets&.chomp
 end

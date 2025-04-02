@@ -1,11 +1,11 @@
 require 'socket'
-require './lib/threads'
+require_relative 'lib/threads'
 
 Thread.abort_on_exception = true
 
 puts "Starting server on port 2000 with pid #{Process.pid}"
 
-server = TCPServer.open(2000)
+server = TCPServer.new(2000)
 
 mutex = Mutex.new
 messages = []
@@ -33,12 +33,12 @@ loop do
     end
 
     # Listen for messages from the client and add these to the messages list
-    while incoming = read_line_from(socket)
+    while (incoming = read_line_from(socket))
       mutex.synchronize do
         messages.push(
-          :time => Time.now,
-          :nickname => nickname,
-          :text => incoming
+          time: Time.now,
+          nickname: nickname,
+          text: incoming
         )
       end
     end

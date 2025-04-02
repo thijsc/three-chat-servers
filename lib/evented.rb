@@ -14,7 +14,5 @@ end
 
 # Read a line and strip any newlines
 def read_line_from(socket)
-  if read = socket.gets
-    read.chomp
-  end
+  socket.gets&.chomp
 end

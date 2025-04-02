@@ -13,7 +13,7 @@ end
 puts "Connecting to #{host} on port 2000..."
 
 # Connect to the server
-client = TCPSocket.open(host, 2000)
+client = TCPSocket.new(host, 2000)
 
 puts 'Connected to chat server, type away!'
 
@@ -22,12 +22,12 @@ client.puts nickname
 
 # Run a thread that puts anything the server sends
 Thread.new do
-  while line = client.gets
-    puts line.chop
+  client.each_line do |line|
+    puts line.chomp
   end
 end
 
 # Send anything we type to the server
-while input = STDIN.gets.chomp
+while (input = $stdin.gets&.chomp)
   client.puts input
 end
