@@ -1,9 +1,10 @@
-require 'socket'
-require_relative 'lib/processes'
+require "socket"
+require_relative "lib/processes"
+require_relative "lib/helpers"
 
 Thread.abort_on_exception = true
 
-puts "Starting server on port 2000 with pid #{Process.pid}"
+puts "Starting server on #{server_address}:2000 with pid #{Process.pid}"
 
 server = TCPServer.new(2000)
 
