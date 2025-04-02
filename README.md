@@ -1,6 +1,6 @@
 # A tale of three chat rooms
 
-Example code to go with the talk of the same name and the [Ruby Magic](https://appsignal.com/ruby-magic) concurrency series of blog posts.
+Example code to go with the talk of the same name and the [Ruby Magic](https://blog.appsignal.com/2017/03/07/ruby-magic-concurrency-processes.html) concurrency series of blog posts.
 
 ## Usage
 
