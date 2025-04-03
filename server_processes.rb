@@ -4,9 +4,9 @@ require_relative "lib/helpers"
 
 Thread.abort_on_exception = true
 
-puts "Starting server on #{server_address}:2000 with pid #{Process.pid}"
+puts "Starting server on #{server_address}:#{server_port} with pid #{Process.pid}"
 
-server = TCPServer.new(2000)
+server = TCPServer.new(server_port)
 
 client_writers = []
 master_reader, master_writer = IO.pipe

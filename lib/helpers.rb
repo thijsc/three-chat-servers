@@ -3,3 +3,7 @@ def server_address
     intf.ipv4_private?
   end.ip_address
 end
+
+def server_port
+  8080
+end

@@ -1,4 +1,5 @@
-require 'socket'
+require "socket"
+require_relative "lib/helpers"
 
 Thread.abort_on_exception = true
 
@@ -10,10 +11,10 @@ if host.nil? || nickname.nil?
   exit 1
 end
 
-puts "Connecting to #{host} on port 2000..."
+puts "Connecting to #{host} on port #{server_port}..."
 
 # Connect to the server
-client = TCPSocket.new(host, 2000)
+client = TCPSocket.new(host, server_port)
 
 puts 'Connected to chat server, type away!'
 
