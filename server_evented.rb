@@ -32,6 +32,8 @@ def create_client_handler(nickname, socket)
           break
         end
 
+        puts "#{nickname}: #{incoming}"
+
         # All good, add it to the list to write
         $messages.push(
           time: Time.now,

@@ -3,6 +3,7 @@
 def write_incoming_messages_to_child_processes(master_reader, client_writers)
   Thread.new do
     master_reader.each_line do |incoming|
+      puts incoming
       client_writers.each do |writer|
         writer.puts incoming
       end

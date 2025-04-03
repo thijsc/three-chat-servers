@@ -35,6 +35,7 @@ loop do
 
     # Listen for messages from the client and add these to the messages list
     while (incoming = read_line_from(socket))
+      puts "#{nickname}: #{incoming}"
       mutex.synchronize do
         messages.push(
           time: Time.now,
