@@ -11,10 +11,16 @@ if host.nil? || nickname.nil?
   exit 1
 end
 
-puts "Connecting to #{host} on port #{server_port}..."
+if host.include?(":")
+  host, arg_server_port = host.split(":")
+else
+  arg_server_port = server_port
+end
+
+puts "Connecting to #{host} on port #{arg_server_port}..."
 
 # Connect to the server
-client = TCPSocket.new(host, server_port)
+client = TCPSocket.new(host, arg_server_port)
 
 puts 'Connected to chat server, type away!'
 
